@@ -1,6 +1,6 @@
 ---
 title: "Internet in Ohio"
-author: "Youzhi Yu"
+author: "Y. Yu"
 date: "5/17/2021"
 output: html_document
 ---
@@ -9,22 +9,64 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Tidytuesday 
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(sf)
+library(maps)
+library(tigris)
+library(scales)
 ```
 
-## Including Plots
+# Data Exploriation
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+bb <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-05-11/broadband.csv')
+bb_ohio <- bb %>% filter(ST == "OH")
+head(bb_ohio)
+dim(bb_ohio)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+bb_zip <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-05-11/broadband_zip.csv')
+bb_zip_ohio <- bb_zip %>% filter(ST == "OH") 
+head(bb_zip_ohio)
+dim(bb_zip_ohio)
+```
+```{r}
+# code is referenced from https://github.com/andybridger/TidyTuesday/blob/main/2021w20/2021w20.R
+substrRight <- function(x, n){
+  substr(x, nchar(x)-n+1, nchar(x))
+}
+OH_data <- filter(bb, ST == "OH")
+OH_data$COUNTYFP <- substrRight(as.character(OH_data$`COUNTY ID`), 3)
+tracts_max <- tracts(state = 'OH')
+ggtract_OH<-fortify(tracts_max, region = "GEOID") 
+ggtract_OH<-left_join(ggtract_OH, OH_data, by=c("COUNTYFP")) 
+```
+
+
+```{r}
+
+ggplot() +
+  geom_sf(data = ggtract_OH, aes(fill=as.numeric(`BROADBAND AVAILABILITY PER FCC`)), colour = "#061541", size =0.25) +
+  coord_sf(datum = NA)+
+  scale_fill_viridis_c(limits=c(0,1), 
+                       breaks=c(0,1, 0.5), labels=c("0", "100%", "50%"),
+                       guide = guide_colourbar(title.position = "top"))+
+  theme_minimal(base_size=10)+
+  theme(plot.subtitle = element_text(size=9),
+        plot.title=element_text(size=14))+
+  guides(fill = guide_colorbar(title.position = "top",
+                               title.hjust = 0.5,
+                               reverse = FALSE,
+                               barheight = unit(10,"lines"),
+                               barwidth = unit(0.5, "lines")))+
+  labs(fill="",
+       title = "Ohio")
+```
+
+
