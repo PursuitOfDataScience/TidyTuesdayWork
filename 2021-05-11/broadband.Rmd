@@ -58,7 +58,7 @@ ggtract_OH<-left_join(ggtract_OH, OH_data, by=c("COUNTYFP"))
 ```
 
 
-```{r}
+```{r, include = TRUE, fig.height = 6, fig.width = 15, fig.align = "center"}
 # code is referenced from https://github.com/andybridger/TidyTuesday/blob/main/2021w20/2021w20.R
 ggplot() +
   geom_sf(data = ggtract_OH, aes(fill=as.numeric(`BROADBAND AVAILABILITY PER FCC`)), colour = "#061541", size =0.25) +
