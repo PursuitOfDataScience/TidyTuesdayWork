@@ -2,14 +2,23 @@
 title: "Internet in Ohio"
 author: "Y. Yu"
 date: "5/17/2021"
-output: html_document
+---
+output: github_document
+          
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-",
+  out.width = "100%"
+)
 ```
 
-## Tidytuesday 
+## Tidytuesday 2020-05-11
 
 ```{r}
 library(tidyverse)
@@ -36,7 +45,7 @@ bb_zip_ohio <- bb_zip %>% filter(ST == "OH")
 head(bb_zip_ohio)
 dim(bb_zip_ohio)
 ```
-```{r}
+```{r, echo = T, results = 'hide'}
 # code is referenced from https://github.com/andybridger/TidyTuesday/blob/main/2021w20/2021w20.R
 substrRight <- function(x, n){
   substr(x, nchar(x)-n+1, nchar(x))
@@ -50,7 +59,7 @@ ggtract_OH<-left_join(ggtract_OH, OH_data, by=c("COUNTYFP"))
 
 
 ```{r}
-
+# code is referenced from https://github.com/andybridger/TidyTuesday/blob/main/2021w20/2021w20.R
 ggplot() +
   geom_sf(data = ggtract_OH, aes(fill=as.numeric(`BROADBAND AVAILABILITY PER FCC`)), colour = "#061541", size =0.25) +
   coord_sf(datum = NA)+
