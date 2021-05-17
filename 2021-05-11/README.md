@@ -5,38 +5,12 @@ Y. Yu
 
 ``` r
 library(tidyverse)
-```
-
-    ## -- Attaching packages --------------------------------------- tidyverse 1.3.0 --
-
-    ## v ggplot2 3.3.2     v purrr   0.3.4
-    ## v tibble  3.1.0     v dplyr   1.0.2
-    ## v tidyr   1.1.2     v stringr 1.4.0
-    ## v readr   1.3.1     v forcats 0.5.0
-
-    ## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
-    ## x dplyr::filter() masks stats::filter()
-    ## x dplyr::lag()    masks stats::lag()
-
-``` r
 library(ggplot2)
 library(dplyr)
 ```
 
 ``` r
 bb <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-05-11/broadband.csv')
-```
-
-    ## Parsed with column specification:
-    ## cols(
-    ##   ST = col_character(),
-    ##   `COUNTY ID` = col_double(),
-    ##   `COUNTY NAME` = col_character(),
-    ##   `BROADBAND AVAILABILITY PER FCC` = col_character(),
-    ##   `BROADBAND USAGE` = col_character()
-    ## )
-
-``` r
 head(bb)
 ```
 
@@ -52,21 +26,9 @@ head(bb)
 
 ``` r
 bb$`BROADBAND AVAILABILITY PER FCC` <- as.numeric(bb$`BROADBAND AVAILABILITY PER FCC`)
-```
-
-    ## Warning: NAs introduced by coercion
-
-``` r
 bb$`BROADBAND USAGE` <- as.numeric(bb$`BROADBAND USAGE`)
-```
-
-    ## Warning: NAs introduced by coercion
-
-``` r
 us <- bb %>% group_by(ST) %>% summarize(mean_availability = mean(`BROADBAND AVAILABILITY PER FCC`), mean_usage = mean(`BROADBAND USAGE`))
 ```
-
-    ## `summarise()` ungrouping output (override with `.groups` argument)
 
 ``` r
 ggplot(us, aes(ST, mean_availability, color = ST, fill = mean_availability)) +
@@ -78,8 +40,6 @@ ggplot(us, aes(ST, mean_availability, color = ST, fill = mean_availability)) +
   labs(y = "Mean Broadband Availability", x = "State") + 
   coord_flip() 
 ```
-
-    ## Warning: Removed 12 rows containing missing values (position_stack).
 
 ![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 

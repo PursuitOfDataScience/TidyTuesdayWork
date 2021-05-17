@@ -10,24 +10,24 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r, include = TRUE, warning = FALSE, message= FALSE}
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
 ```
 
-```{r}
+```{r, include = TRUE, warning = FALSE, message= FALSE}
 bb <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-05-11/broadband.csv')
 head(bb)
 ```
 
-```{r}
+```{r, include = TRUE, warning = FALSE, message= FALSE}
 bb$`BROADBAND AVAILABILITY PER FCC` <- as.numeric(bb$`BROADBAND AVAILABILITY PER FCC`)
 bb$`BROADBAND USAGE` <- as.numeric(bb$`BROADBAND USAGE`)
 us <- bb %>% group_by(ST) %>% summarize(mean_availability = mean(`BROADBAND AVAILABILITY PER FCC`), mean_usage = mean(`BROADBAND USAGE`))
 ```
 
-```{r}
+```{r, include = TRUE, warning = FALSE, message= FALSE}
 ggplot(us, aes(ST, mean_availability, color = ST, fill = mean_availability)) +
   geom_col(width = 0.5) + 
   theme_bw() +
