@@ -1,0 +1,85 @@
+---
+title: "Internet in the U.S."
+author: "Y. Yu"
+date: "5/17/2021"
+output: github_document
+          
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+```
+
+```{r}
+bb <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-05-11/broadband.csv')
+head(bb)
+```
+
+```{r}
+bb$`BROADBAND AVAILABILITY PER FCC` <- as.numeric(bb$`BROADBAND AVAILABILITY PER FCC`)
+bb$`BROADBAND USAGE` <- as.numeric(bb$`BROADBAND USAGE`)
+us <- bb %>% group_by(ST) %>% summarize(mean_availability = mean(`BROADBAND AVAILABILITY PER FCC`), mean_usage = mean(`BROADBAND USAGE`))
+```
+
+```{r}
+ggplot(us, aes(ST, mean_availability, color = ST, fill = mean_availability)) +
+  geom_col(width = 0.5) + 
+  theme_bw() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(size = 10,angle = 0),
+        axis.text.y = element_text(size = 6, angle = 0)) +
+  labs(y = "Mean Broadband Availability", x = "State") + 
+  coord_flip() 
+```
+
+```{r}
+ggplot(us, aes(ST, mean_usage, color = ST, fill = mean_usage)) +
+  geom_col(width = 0.5) + 
+  theme_bw() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(size = 10,angle = 0),
+        axis.text.y = element_text(size = 6, angle = 0)) +
+  labs(y = "Mean Broadband Usage", x = "State") + 
+  coord_flip() 
+```
+
+
+```{r}
+state_region_crosswalk<- readr::read_csv('https://raw.githubusercontent.com/cphalpert/census-regions/master/us%20census%20bureau%20regions%20and%20divisions.csv')
+
+state_region <- state_region_crosswalk %>% select(`State Code`, `Region`)
+# assiging each state with a region 
+bb <- bb %>% left_join(state_region, by = c("ST" = "State Code"))
+head(bb)
+```
+
+
+```{r}
+bb <- bb %>% drop_na()
+bb %>% group_by(Region) %>%
+  summarize(mean_availability = mean(`BROADBAND AVAILABILITY PER FCC`), mean_usage = mean(`BROADBAND USAGE`)) %>%
+  ggplot(aes(Region, mean_availability, color = Region, fill = Region)) +
+  geom_col() + 
+  theme_bw() +
+  theme(axis.text = element_text(size = 15),
+        axis.title = element_text(size = 16)) +
+  labs(y = "Mean Broadband Availability Per FCC", x = "Region") 
+```
+
+```{r}
+bb %>% group_by(Region) %>%
+  summarize(mean_usage = mean(`BROADBAND USAGE`)) %>%
+  ggplot(aes(Region, mean_usage, color = Region, fill = Region)) +
+  geom_col() + 
+  theme_bw() +
+  theme(axis.text = element_text(size = 15),
+        axis.title = element_text(size = 16)) +
+  labs(y = "Mean Broadband Usage", x = "Region") 
+```
+
