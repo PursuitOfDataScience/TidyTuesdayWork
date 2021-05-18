@@ -1,5 +1,5 @@
 ---
-title: "Manager Survey"
+title: "Data Wrangling and Visualization on Manager Survey"
 author: "Y. Yu"
 output: github_document
 ---

@@ -1,4 +1,4 @@
-Manager Survey
+Data Wrangling and Visualization on Manager Survey
 ================
 Y. Yu
 
