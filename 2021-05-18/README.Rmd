@@ -1,0 +1,46 @@
+---
+title: "Manager Survey"
+author: "Y. Yu"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message= FALSE, warning= FALSE}
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(knitr)
+```
+
+
+# Data Exploration
+
+```{r, message= FALSE, warning= FALSE}
+survey <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-05-18/survey.csv')
+head(survey)
+dim(survey)
+```
+
+Let's focus on the U.S. only for the moment.
+
+```{r}
+survey_us <- survey %>%
+  filter(country == "United States")
+```
+
+
+```{r, warning = FALSE}
+missing_values <- data.frame(col = names(survey_us),missing_value=colSums(is.na(survey_us)))
+rownames(missing_values) <- 1:nrow(missing_values)
+ggplot(missing_values, aes(col, missing_value, color = col, fill = col)) +
+  geom_col() +
+  theme_bw() +
+  theme(legend.position = "none") +
+  ggtitle("Column-wise Missing Value in the U.S.") +
+  xlab("") + ylab("missing value count") + 
+  coord_flip() 
+```
+
