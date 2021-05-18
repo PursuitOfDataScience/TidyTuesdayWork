@@ -44,3 +44,68 @@ ggplot(missing_values, aes(col, missing_value, color = col, fill = col)) +
   coord_flip() 
 ```
 
+Since we are in the U.S., it would be interesting to see the average `annual_salary` in each state. As we can see from the following code, the dataset on the U.S. states is super messy and so many "states" do not make any sense.
+
+```{r}
+unique(survey_us$state)
+
+```
+
+
+```{r}
+survey_us %>% filter(str_detect(state, ", ", negate = TRUE)) %>% 
+  group_by(state) %>%
+  summarize(mean_salary = mean(annual_salary)) %>%
+  ggplot(aes(state, mean_salary, fill = state)) +
+  geom_col(width = 0.5) +
+  theme_bw() +
+  theme(legend.position = "none",
+        axis.text.y = element_text(size = 7)) +
+  xlab("") +
+  ylab("Average Salary") +
+  coord_flip()
+
+
+```
+
+Surprisingly, Alabama has the hightest average salary. 
+
+
+```{r, message = FALSE}
+survey_us$highest_level_of_education_completed <- factor(survey_us$highest_level_of_education_completed, levels = c(
+"High School", "Some college", "College degree", "Master's degree", "PhD", "Professional degree (MD, JD, etc.)", "NA" 
+))
+survey_us %>% group_by(highest_level_of_education_completed, gender) %>%
+  summarize(mean_salary = mean(annual_salary)) %>%
+  ggplot(aes(highest_level_of_education_completed, mean_salary, fill = highest_level_of_education_completed)) +
+  geom_col(width = 0.5) +
+  facet_wrap(~gender) +
+  theme_bw() +
+  theme(legend.position = "bottom",
+        axis.text.y = element_text(size = 8),
+        legend.title = element_blank(),
+        axis.ticks = element_blank(),
+        legend.text = element_text(size = 8)) +
+  scale_x_discrete(labels = c("HS", "SC", "Col", "Mas", "PhD", "Pro", "NA")) + 
+  xlab("") +
+  ylab("Average Salary") +
+  ggtitle("Gender-Wise Average Salary in the U.S.")
+```
+
+```{r, message = FALSE}
+survey_us %>% group_by(highest_level_of_education_completed, gender) %>%
+  summarize(annual_salary) %>% filter(annual_salary <= 300000) %>%
+  ggplot(aes(highest_level_of_education_completed, annual_salary, fill = highest_level_of_education_completed)) +
+  geom_boxplot() +
+  facet_wrap(~gender) +
+  theme_bw() +
+  theme(legend.position = "bottom",
+        axis.text.y = element_text(size = 7),
+        legend.title = element_blank(),
+        axis.ticks = element_blank()) +
+  xlab("") +
+  ylab("Average Salary")  +
+  scale_x_discrete(labels = c("HS", "SC", "Col", "Mas", "PhD", "Pro", "NA")) 
+```
+
+
