@@ -13,6 +13,7 @@ library(tidyverse)
 library(ggplot2)
 library(dplyr)
 library(knitr)
+library(viridis)
 ```
 
 
@@ -22,6 +23,9 @@ library(knitr)
 survey <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-05-18/survey.csv')
 head(survey)
 dim(survey)
+survey$highest_level_of_education_completed <- factor(survey$highest_level_of_education_completed, levels = c(
+"High School", "Some college", "College degree", "Master's degree", "PhD", "Professional degree (MD, JD, etc.)", "NA" 
+))
 ```
 
 Let's focus on the U.S. only for the moment.
@@ -46,7 +50,7 @@ ggplot(missing_values, aes(col, missing_value, color = col, fill = col)) +
 
 Since we are in the U.S., it would be interesting to see the average `annual_salary` in each state. As we can see from the following code, the dataset on the U.S. states is super messy and so many "states" do not make any sense.
 
-```{r}
+```{r, include= FALSE}
 unique(survey_us$state)
 
 ```
@@ -108,4 +112,62 @@ survey_us %>% group_by(highest_level_of_education_completed, gender) %>%
   scale_x_discrete(labels = c("HS", "SC", "Col", "Mas", "PhD", "Pro", "NA")) 
 ```
 
+
+```{r}
+unique(survey$overall_years_of_professional_experience)
+survey$overall_years_of_professional_experience <- factor(survey$overall_years_of_professional_experience, levels = c(
+  "1 year or less", "2 - 4 years", "5-7 years", "8 - 10 years", "11 - 20 years", "21 - 30 years", "31 - 40 years", "41 years or more"))
+```
+
+```{r, message = FALSE}
+
+p1 <- survey %>% group_by(overall_years_of_professional_experience, highest_level_of_education_completed) %>%
+  summarize(salary = mean(annual_salary)/1000) %>%
+  ggplot(aes(highest_level_of_education_completed, overall_years_of_professional_experience, fill = salary)) +
+  geom_tile() +
+  xlab("Highest Level Of Education") +
+  ylab("Years Of Professional Experience")  +
+  scale_x_discrete(labels = c("High School", "Some College", "College", "Master's", "PhD", "Professional", "NA"))+
+  scale_fill_viridis(name = "Salary (*1000)") +
+  theme_bw() +
+  theme(legend.position = "bottom",
+        axis.text.y = element_text(size = 8,  angle = 30, face = "bold"),
+        axis.text.x = element_text(size = 8, face = "bold"),
+        axis.title.x = element_text(vjust=-1, face = "bold"),
+        axis.title.y = element_text(face = "bold"),
+        legend.title = element_text(size = 10, face = "bold"),
+        axis.ticks = element_blank(),
+        legend.text = element_text(size = 10)) +
+  ggtitle("Average Salary On Working Experience & Education Combined")
+
+p1
+  
+```
+
+
+```{r, message = FALSE}
+p2 <- survey %>% group_by(overall_years_of_professional_experience, highest_level_of_education_completed) %>%
+  summarize(salary = mean(annual_salary)) %>%
+  group_by(overall_years_of_professional_experience) %>%
+  mutate(min_max = (salary - min(salary))/(max(salary)- min(salary))) %>%
+  ggplot(aes(highest_level_of_education_completed, overall_years_of_professional_experience, fill = min_max)) +
+  geom_tile() +
+  xlab("") +
+  ylab("Years Of Professional Experience")  +
+  scale_x_discrete(labels = c("High School", "Some College", "College", "Master's", "PhD", "Professional", "NA"))+
+  scale_fill_viridis(name = "Normalized Salary") +
+  theme_bw() +
+  theme(legend.position = "bottom",
+        axis.text.y = element_text(size = 8,  angle = 30, face = "bold"),
+        axis.text.x = element_text(size = 8, face = "bold"),
+        axis.title.x = element_text(vjust=-1, face = "bold"),
+        axis.title.y = element_text(face = "bold"),
+        legend.title = element_text(size = 10, face = "bold"),
+        axis.ticks = element_blank(),
+        legend.text = element_text(size = 10),
+        legend.title.align = 1) +
+  ggtitle("Education-Wise Salary (Min-Max)")
+
+p2 
+```
 
