@@ -195,3 +195,35 @@ p2
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+top_5_industry <- survey %>%
+  group_by(industry) %>%
+  summarize(total_count=n()) %>%
+  arrange(desc(total_count)) %>%
+  top_n(5, total_count)
+
+survey %>%
+  inner_join(top_5_industry, by = "industry") %>%
+  #filter(industry %in% as.vector(top_5_industry)) %>%
+  group_by(industry,highest_level_of_education_completed, gender) %>%
+  summarize(percentage = 100 * n()/total_count) %>%
+  distinct() %>%
+  arrange(desc(percentage)) %>%
+  ggplot(aes(highest_level_of_education_completed, percentage, fill = industry)) +
+  geom_bar(stat = "identity", position = "fill") + 
+  facet_wrap(~gender) +
+  theme_bw() +
+  theme(axis.text = element_text(size = 8, face = "bold"),
+        legend.title = element_blank(),
+        axis.ticks = element_blank(),
+        legend.position = c(0.845, 0.2),
+        legend.text = element_text(size = 8),
+        strip.text = element_text(size=8, face = "bold")) +
+  scale_x_discrete(labels = c("HS", "SC", "Col", "Mas", "PhD", "Pro", "NA")) + 
+  xlab("Highest Level Of Education Completed") +
+  ylab("Percentage Of Education") +
+  ggtitle("Gender-Wise Education Distribution In 5 Most Popular Industries")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
