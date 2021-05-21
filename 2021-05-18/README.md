@@ -227,3 +227,27 @@ survey %>%
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
+survey %>% group_by(gender, how_old_are_you, highest_level_of_education_completed) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count)) %>%
+  filter(count > 100) %>%
+  ungroup() %>%
+  ggplot(aes(gender, count, fill = highest_level_of_education_completed)) +
+  geom_bar(stat = "identity", position = "stack") +
+  facet_wrap(~how_old_are_you, scale = "free") + 
+  coord_flip() +
+  theme_classic() +
+  theme(
+    legend.position = c(0.85, 0.2),
+    legend.title = element_blank(),
+    legend.text = element_text(size = 8),
+    axis.ticks = element_blank(),
+    axis.text = element_text(size = 9),
+    axis.title = element_text(size = 11)
+  ) +
+  labs(x = "Age", y = "Count") 
+```
+
+![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
