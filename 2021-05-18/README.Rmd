@@ -225,6 +225,30 @@ survey %>% group_by(gender, how_old_are_you, highest_level_of_education_complete
   
 ```
 
+```{r, message = FALSE, warning= FALSE}
+survey %>% 
+  filter(currency == "USD") %>%
+  group_by(city) %>%
+  summarize(gender, norm_salary = annual_salary/1000, highest_level_of_education_completed) %>%
+  arrange(desc(norm_salary)) %>%
+  filter(norm_salary < 1000) %>%
+  ggplot(aes(highest_level_of_education_completed, norm_salary, fill = highest_level_of_education_completed)) +
+  geom_violin() +
+  ylab("Annual Salary (USD) * 1000") + 
+  coord_flip(clip = "off", expand = FALSE) +
+  #facet_wrap(~gender) +
+  theme_bw() +
+  theme(
+    legend.position = "top",
+    axis.title.y = element_blank(),
+    axis.title.x = element_text(size = 12, face = "bold"),
+    axis.text.y = element_text(angle = 30, face = "bold"),
+    legend.title = element_text(size = 12),
+    axis.text.x = element_text(size = 12, face = "bold")
+  ) +
+  guides(fill = guide_legend(title = "Highest Degree Achieved", title.position = "top",
+                             title.theme = element_text(size = 10, face = "bold"))) 
+```
 
 
 
