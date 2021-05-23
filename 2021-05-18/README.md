@@ -278,3 +278,140 @@ survey %>%
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+#ggsave("voilin plot.png", width = 20, height = 10)
+```
+
+``` r
+survey %>% count(race, sort = T)
+```
+
+    ## # A tibble: 48 x 2
+    ##    race                                                       n
+    ##    <chr>                                                  <int>
+    ##  1 White                                                  21909
+    ##  2 Asian or Asian American                                 1217
+    ##  3 Black or African American                                618
+    ##  4 Another option not listed here or prefer not to answer   566
+    ##  5 Hispanic, Latino, or Spanish origin                      521
+    ##  6 Hispanic, Latino, or Spanish origin, White               351
+    ##  7 Asian or Asian American, White                           327
+    ##  8 NA                                                       146
+    ##  9 Black or African American, White                         121
+    ## 10 Middle Eastern or Northern African, White                 73
+    ## # ... with 38 more rows
+
+``` r
+survey %>% filter(race != "NA") %>%
+  separate(race, c("race", "extra"), sep = "or") %>%
+  #select(race) %>% distinct()
+  separate(race, c("race", "extra"), sep = ",") %>%
+  select(race) %>%
+  distinct()
+```
+
+    ## Warning: Expected 2 pieces. Additional pieces discarded in 1162 rows [10, 12,
+    ## 46, 57, 106, 118, 128, 160, 161, 171, 172, 193, 215, 224, 238, 283, 359, 391,
+    ## 408, 428, ...].
+
+    ## Warning: Expected 2 pieces. Missing pieces filled with `NA` in 21909 rows [1, 2,
+    ## 3, 4, 5, 6, 7, 8, 9, 11, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, ...].
+
+    ## Warning: Expected 2 pieces. Additional pieces discarded in 904 rows [10, 12, 46,
+    ## 57, 106, 118, 160, 161, 171, 172, 193, 215, 224, 238, 283, 359, 391, 408, 428,
+    ## 429, ...].
+
+    ## Warning: Expected 2 pieces. Missing pieces filled with `NA` in 25120 rows [1, 2,
+    ## 3, 4, 5, 6, 7, 8, 9, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, ...].
+
+    ## # A tibble: 7 x 1
+    ##   race                             
+    ##   <chr>                            
+    ## 1 "White"                          
+    ## 2 "Hispanic"                       
+    ## 3 "Asian "                         
+    ## 4 "Another option not listed here "
+    ## 5 "Middle Eastern "                
+    ## 6 "Black "                         
+    ## 7 "Native American "
+
+``` r
+race_summary <- survey %>% 
+    filter(race != "NA") %>%
+    separate(race, c("race", "extra"), sep = "or") %>%
+    separate(race, c("race", "extra"), sep = ",") 
+```
+
+    ## Warning: Expected 2 pieces. Additional pieces discarded in 1162 rows [10, 12,
+    ## 46, 57, 106, 118, 128, 160, 161, 171, 172, 193, 215, 224, 238, 283, 359, 391,
+    ## 408, 428, ...].
+
+    ## Warning: Expected 2 pieces. Missing pieces filled with `NA` in 21909 rows [1, 2,
+    ## 3, 4, 5, 6, 7, 8, 9, 11, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, ...].
+
+    ## Warning: Expected 2 pieces. Additional pieces discarded in 904 rows [10, 12, 46,
+    ## 57, 106, 118, 160, 161, 171, 172, 193, 215, 224, 238, 283, 359, 391, 408, 428,
+    ## 429, ...].
+
+    ## Warning: Expected 2 pieces. Missing pieces filled with `NA` in 25120 rows [1, 2,
+    ## 3, 4, 5, 6, 7, 8, 9, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, ...].
+
+``` r
+race_summary <- race_summary %>% mutate(race = replace(race, race == "Another option not listed here", "Others"))
+
+race_summary <- race_summary %>% mutate(race = ifelse(race == "Another option not listed here ", "Others", race))
+
+race_summary <- race_summary %>%
+  mutate(gender_update = case_when(
+    gender %in% c("Woman")  ~ "Women",
+    gender %in% c("Man")  ~ "Man",
+    gender %in% c("Other or prefer not to answer", "Non-binary", "Prefer not to answer")  ~ "Others",
+    is.na(gender) ~ "Others"
+  ))
+
+race_summary %>% count(race, sort = T)
+```
+
+    ## # A tibble: 7 x 2
+    ##   race                   n
+    ##   <chr>              <int>
+    ## 1 "White"            21971
+    ## 2 "Asian "            1610
+    ## 3 "Hispanic"           904
+    ## 4 "Black "             792
+    ## 5 "Others"             566
+    ## 6 "Middle Eastern "    137
+    ## 7 "Native American "   106
+
+``` r
+race_summary %>% group_by(race, gender_update, highest_level_of_education_completed) %>%
+  summarize(salary = mean(annual_salary), race, highest_level_of_education_completed) %>%
+  distinct() %>%
+  ggplot(aes(gender_update, salary, fill = highest_level_of_education_completed)) +
+  #scale_y_log10() + 
+  geom_bar(stat = "identity", position = "dodge") +
+  #geom_boxplot() +
+  facet_wrap(~race, scales = "free") +
+  theme_bw() +
+  theme(
+    legend.position = c(0.6, 0.1),
+    legend.text = element_text(size = 15),
+    #strip.text = element_text(size=25, face = "bold"),
+    axis.title.x = element_text(size = 12, face = "bold"),
+    axis.text.y = element_text(size = 15, face = "bold"),
+    axis.title = element_text(size = 25, face= "bold"),
+    legend.title = element_text(size = 12),
+    axis.text.x = element_text(size = 12, face = "bold")
+  ) +
+  guides(fill = guide_legend(title = "Highest Degree Achieved", title.position = "top",
+                             title.theme = element_text(size = 15, face = "bold"),
+                             )) +
+  labs(x = "", y = "Average Salary")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+
+``` r
+#ggsave("race plot.png", width = 20, height = 10)
+```

@@ -248,7 +248,69 @@ survey %>%
   ) +
   guides(fill = guide_legend(title = "Highest Degree Achieved", title.position = "top",
                              title.theme = element_text(size = 10, face = "bold"))) 
+
+#ggsave("voilin plot.png", width = 20, height = 10)
 ```
 
 
+```{r}
+survey %>% count(race, sort = T)
+```
+
+```{r}
+survey %>% filter(race != "NA") %>%
+  separate(race, c("race", "extra"), sep = "or") %>%
+  #select(race) %>% distinct()
+  separate(race, c("race", "extra"), sep = ",") %>%
+  select(race) %>%
+  distinct()
+```
+```{r}
+race_summary <- survey %>% 
+    filter(race != "NA") %>%
+    separate(race, c("race", "extra"), sep = "or") %>%
+    separate(race, c("race", "extra"), sep = ",") 
+
+race_summary <- race_summary %>% mutate(race = replace(race, race == "Another option not listed here", "Others"))
+
+race_summary <- race_summary %>% mutate(race = ifelse(race == "Another option not listed here ", "Others", race))
+
+race_summary <- race_summary %>%
+  mutate(gender_update = case_when(
+    gender %in% c("Woman")  ~ "Women",
+    gender %in% c("Man")  ~ "Man",
+    gender %in% c("Other or prefer not to answer", "Non-binary", "Prefer not to answer")  ~ "Others",
+    is.na(gender) ~ "Others"
+  ))
+
+race_summary %>% count(race, sort = T)
+```
+```{r, message = FALSE}
+race_summary %>% group_by(race, gender_update, highest_level_of_education_completed) %>%
+  summarize(salary = mean(annual_salary), race, highest_level_of_education_completed) %>%
+  distinct() %>%
+  ggplot(aes(gender_update, salary, fill = highest_level_of_education_completed)) +
+  #scale_y_log10() + 
+  geom_bar(stat = "identity", position = "dodge") +
+  #geom_boxplot() +
+  facet_wrap(~race, scales = "free") +
+  theme_bw() +
+  theme(
+    legend.position = c(0.6, 0.1),
+    legend.text = element_text(size = 15),
+    #strip.text = element_text(size=25, face = "bold"),
+    axis.title.x = element_text(size = 12, face = "bold"),
+    axis.text.y = element_text(size = 15, face = "bold"),
+    axis.title = element_text(size = 25, face= "bold"),
+    legend.title = element_text(size = 12),
+    axis.text.x = element_text(size = 12, face = "bold")
+  ) +
+  guides(fill = guide_legend(title = "Highest Degree Achieved", title.position = "top",
+                             title.theme = element_text(size = 15, face = "bold"),
+                             )) +
+  labs(x = "", y = "Average Salary")
+
+#ggsave("race plot.png", width = 20, height = 10)
+
+```
 
