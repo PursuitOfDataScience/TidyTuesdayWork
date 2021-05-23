@@ -338,24 +338,24 @@ survey %>% filter(race != "NA") %>%
 
 ``` r
 race_summary <- survey %>% 
-    filter(race != "NA") %>%
+    filter(race != "NA" & currency == "USD") %>%
     separate(race, c("race", "extra"), sep = "or") %>%
     separate(race, c("race", "extra"), sep = ",") 
 ```
 
-    ## Warning: Expected 2 pieces. Additional pieces discarded in 1162 rows [10, 12,
-    ## 46, 57, 106, 118, 128, 160, 161, 171, 172, 193, 215, 224, 238, 283, 359, 391,
-    ## 408, 428, ...].
+    ## Warning: Expected 2 pieces. Additional pieces discarded in 1053 rows [9, 11, 41,
+    ## 49, 89, 104, 130, 131, 140, 141, 160, 179, 187, 200, 241, 304, 334, 350, 367,
+    ## 368, ...].
 
-    ## Warning: Expected 2 pieces. Missing pieces filled with `NA` in 21909 rows [1, 2,
-    ## 3, 4, 5, 6, 7, 8, 9, 11, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, ...].
+    ## Warning: Expected 2 pieces. Missing pieces filled with `NA` in 18182 rows [1, 2,
+    ## 3, 4, 5, 6, 7, 8, 10, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 25, ...].
 
-    ## Warning: Expected 2 pieces. Additional pieces discarded in 904 rows [10, 12, 46,
-    ## 57, 106, 118, 160, 161, 171, 172, 193, 215, 224, 238, 283, 359, 391, 408, 428,
-    ## 429, ...].
+    ## Warning: Expected 2 pieces. Additional pieces discarded in 833 rows [9, 11, 41,
+    ## 49, 89, 130, 131, 140, 141, 160, 179, 187, 200, 241, 304, 334, 350, 367, 368,
+    ## 403, ...].
 
-    ## Warning: Expected 2 pieces. Missing pieces filled with `NA` in 25120 rows [1, 2,
-    ## 3, 4, 5, 6, 7, 8, 9, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, ...].
+    ## Warning: Expected 2 pieces. Missing pieces filled with `NA` in 20857 rows [1, 2,
+    ## 3, 4, 5, 6, 7, 8, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, ...].
 
 ``` r
 race_summary <- race_summary %>% mutate(race = replace(race, race == "Another option not listed here", "Others"))
@@ -376,13 +376,13 @@ race_summary %>% count(race, sort = T)
     ## # A tibble: 7 x 2
     ##   race                   n
     ##   <chr>              <int>
-    ## 1 "White"            21971
-    ## 2 "Asian "            1610
-    ## 3 "Hispanic"           904
-    ## 4 "Black "             792
-    ## 5 "Others"             566
-    ## 6 "Middle Eastern "    137
-    ## 7 "Native American "   106
+    ## 1 "White"            18217
+    ## 2 "Asian "            1334
+    ## 3 "Hispanic"           833
+    ## 4 "Black "             712
+    ## 5 "Others"             428
+    ## 6 "Middle Eastern "    117
+    ## 7 "Native American "    84
 
 ``` r
 race_summary %>% group_by(race, gender_update, highest_level_of_education_completed) %>%
@@ -407,7 +407,7 @@ race_summary %>% group_by(race, gender_update, highest_level_of_education_comple
   guides(fill = guide_legend(title = "Highest Degree Achieved", title.position = "top",
                              title.theme = element_text(size = 15, face = "bold"),
                              )) +
-  labs(x = "", y = "Average Salary")
+  labs(x = "", y = "Average Salary (USD)")
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
