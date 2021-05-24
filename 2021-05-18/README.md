@@ -415,3 +415,68 @@ race_summary %>% group_by(race, gender_update, highest_level_of_education_comple
 ``` r
 #ggsave("race plot.png", width = 20, height = 10)
 ```
+
+``` r
+race_summary$highest_level_of_education_completed <- recode(race_summary$highest_level_of_education_completed, `Professional degree (MD, JD, etc.)` = "Professional")
+race_summary %>% filter(!is.na(highest_level_of_education_completed)) %>%
+  group_by(race, highest_level_of_education_completed, gender_update) %>%
+  summarize(count = n()) %>%
+  ggplot(aes(gender_update, count, fill = highest_level_of_education_completed)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  #geom_boxplot() +
+  facet_wrap(~race, scales = "free") +
+  theme_bw() +
+  theme(
+    legend.position = c(0.65, 0.1),
+    legend.text = element_text(size = 10),
+    strip.text = element_text(size=15, face = "bold"),
+    axis.title.x = element_text(size = 12, face = "bold"),
+    axis.text.y = element_text(size = 15, face = "bold"),
+    axis.title = element_text(size = 15, face= "bold"),
+    legend.title = element_text(size = 12),
+    axis.text.x = element_text(size = 12, face = "bold")
+  ) +
+  guides(fill = guide_legend(title = "Highest Degree Achieved", title.position = "left",
+                             title.theme = element_text(size = 10, face = "bold"),
+                             )) +
+  labs(x = "", y = "Count of People")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+
+``` r
+ggsave("race_wise.png", width = 20, height = 10)
+```
+
+``` r
+race_summary %>% filter(!is.na(highest_level_of_education_completed)) %>%
+  group_by(race, highest_level_of_education_completed, gender_update) %>%
+  summarize(count = n()) %>%
+  ggplot(aes(gender_update, count, fill = race)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  #geom_boxplot() +
+  facet_wrap(~highest_level_of_education_completed, scales = "free") +
+  theme_bw() +
+  theme(
+    legend.position = "top",
+    legend.text = element_text(size = 10),
+    #strip.text = element_text(size=15, face = "bold"),
+    axis.title.x = element_text(size = 12, face = "bold"),
+    axis.text.y = element_text(size = 15, face = "bold"),
+    axis.title = element_text(size = 15, face= "bold"),
+    legend.title = element_text(size = 12),
+    axis.text.x = element_text(size = 12, face = "bold")
+  ) +
+  guides(fill = guide_legend(title = "", title.position = "left",
+                             title.theme = element_text(size = 10, face = "bold"),
+                             )) +
+  labs(x = "", y = "Count of People")
+```
+
+    ## `summarise()` regrouping output by 'race', 'highest_level_of_education_completed' (override with `.groups` argument)
+
+![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+
+``` r
+ggsave("education_wise.png", width = 20, height = 10)
+```
