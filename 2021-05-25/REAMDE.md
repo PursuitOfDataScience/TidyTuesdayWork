@@ -1,0 +1,2 @@
+![weekdaylineplot](https://user-images.githubusercontent.com/54338793/119510126-45688880-bd3f-11eb-9a01-c05d816830e1.png)
+![trackbarplot](https://user-images.githubusercontent.com/54338793/119510131-46011f00-bd3f-11eb-982a-fc619c24cbaa.png)
