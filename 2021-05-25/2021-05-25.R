@@ -39,7 +39,7 @@ records %>% group_by(year, track) %>%
   ) +
   labs(x = "Year", y = "Average Time (seconds)") 
 
-ggsave("trackbarplot.png", width = 20, height = 10)
+#ggsave("trackbarplot.png", width = 20, height = 10)
 
 records$weekday <- factor(records$weekday, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
 records %>% group_by(year, weekday) %>%
@@ -58,5 +58,51 @@ records %>% group_by(year, weekday) %>%
   )+
   labs(x = "Year", y = "Average Time (seconds)")
 
-ggsave("weekdaylineplot.png", width = 20, height = 10)
+#ggsave("weekdaylineplot.png", width = 20, height = 10)
+
+#another day of plot  --------------------------------------------------
+drivers %>% select(position, player, nation) %>%
+  distinct() %>%
+  group_by(nation) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count)) %>%
+  #ggplot(aes(nation, count, fill = nation)) +
+  ggplot(aes(reorder(nation, -count), count, fill = nation)) +
+  
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  theme_bw() +
+  theme(
+    axis.ticks = element_blank(),
+    axis.title = element_text(size = 15),
+    axis.text.y = element_text(size = 15),
+    axis.text.x = element_text(size = 13),
+    legend.position = "none"
+  )+
+  labs(x = "", y = "Player Number")
+#ggsave("nationbarplot.png", width = 20, height = 10)
+
+library(ggridges)
+drivers %>% group_by(nation) %>%
+  summarize(records) %>%
+  ggplot(aes(x = records, y = nation, fill = nation)) + 
+  geom_density_ridges(scale = 1.5, alpha = 0.7, jittered_points = TRUE) +
+  #geom_ridgeline() + 
+  #scale_fill_viridis_d(name = "") +
+  theme_bw() +
+  theme(
+    axis.ticks = element_blank(),
+    axis.title = element_blank(),
+    axis.text.y = element_text(size = 15),
+    axis.text.x = element_text(size = 15),
+    legend.position = "none",
+    title = element_text(size = 15)
+  ) + 
+  xlim(-5, 50) + 
+  ggtitle("Record Density Per Country (1997 - 2020)")
+
+#ggsave("ridgeplot.png", width = 20, height = 10)
+
+
+
 
