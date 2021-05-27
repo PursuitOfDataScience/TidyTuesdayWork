@@ -104,5 +104,53 @@ drivers %>% group_by(nation) %>%
 #ggsave("ridgeplot.png", width = 20, height = 10)
 
 
+#-------------------------------------------------------
+library(ggthemes)
+unique(records$system_played)
+records %>% group_by(system_played, type, year) %>%
+  summarize(average_time = mean(time)) %>%
+  ggplot(aes(year, average_time, fill = type)) +
+  geom_bar(stat = "identity", position = "stack") +
+  facet_wrap(~system_played) +
+  theme_bw() +
+  theme_solarized() + 
+  labs(x = "", y = "Average Time (seconds)") +
+  theme(
+    strip.text = element_text(size = 15),
+    axis.title = element_text(size = 15, face = "bold"),
+    axis.text = element_text(size = 12),
+    legend.position = "top",
+    legend.text = element_text(size = 12)
+  ) +
+  scale_x_continuous(breaks = seq(1997, 2020, by = 1)) +
+  coord_flip()
+ggsave("BarplotNewStyle.png", width = 20, height = 10)
+
+records$month <- as.character(records$month)
+records$month <- factor(records$month, levels = c("1", "2", "3", "4", "5", "6", "7", "8",  "9", "10", "11", "12"))
+records <- records %>%
+  # Rename 4 to 4wd, f to Front, r to Rear
+  mutate(month_update = recode(month, "1" = "Jan", "2" = "Feb", "3" = "Mar", "4" = "Apr", "5" = "May", "6" = "Jun", 
+                               "7" = "Jul", "8" = "Aug", "9" = "Sep", "10" = "Oct", "11" = "Nov", "12" = "Dec"))
+
+records %>% group_by(year, month_update, type, system_played) %>%
+  summarize(average_time = mean(time)) %>%
+  ggplot(aes(year, average_time, color = type)) +
+  geom_line(size = 2) +
+  facet_grid(vars(month_update), vars(system_played), scales = "free") + 
+  theme_bw() +
+  theme_solarized() + 
+  labs(x = "", y = "Average Time (seconds)") +
+  theme(
+    strip.text = element_text(size = 15),
+    axis.title = element_text(size = 15, face = "bold"),
+    axis.text = element_text(size = 12),
+    legend.position = "top",
+    legend.text = element_text(size = 13),
+    legend.title = element_text(size = 15)
+  ) +
+  scale_x_continuous(breaks = seq(1997, 2020, by = 3))
+ggsave("LineplotNewStyle.png", width = 20, height = 10)
+
 
 
