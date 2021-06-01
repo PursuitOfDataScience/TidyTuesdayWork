@@ -150,7 +150,7 @@ records %>% group_by(year, month_update, type, system_played) %>%
     legend.title = element_text(size = 15)
   ) +
   scale_x_continuous(breaks = seq(1997, 2020, by = 3))
-ggsave("LineplotNewStyle.png", width = 20, height = 10)
+#ggsave("LineplotNewStyle.png", width = 20, height = 10)
 
 
 
