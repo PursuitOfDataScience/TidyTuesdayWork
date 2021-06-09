@@ -99,7 +99,7 @@ fishing %>% select(-comments) %>%
     axis.title = element_text(size = 15),
     axis.text.y = element_text(size = 15),
     axis.text.x = element_text(size = 15, angle = 30),
-    legend.position = "bottom",
+    legend.position = "none",
     legend.text = element_text(size = 15),
     legend.title = element_blank(),
     plot.title = element_text(size = 16)
@@ -108,3 +108,32 @@ fishing %>% select(-comments) %>%
   labs(x = "year", y = "log-scale total number of fish") +
   ggtitle("Time Series 10 Most Populated Fishes In The Great Lakes")
 #ggsave("Time Series 10 Most Populated Fishes In The Great Lakes.png", height = 10, width = 20)
+
+library(ggridges)
+stocked %>% select(year, lake, species, no_stocked, weight) %>%
+  mutate(lake = case_when(
+    lake == "MI" ~ "Michigan",
+    lake == "SU" ~ "Superior",
+    lake == "ON" ~ "Ontario",
+    lake == "ER" ~ "Erie",
+    lake == "HU" ~ "Huron",
+    lake == "SC" ~ "Saint Clair"
+  )) %>%
+  ggplot(aes(log(weight+1), species, fill = species)) +
+  geom_density_ridges() +
+  scale_x_continuous() +
+  facet_wrap(~lake) +
+  theme_bw() +
+  theme(
+    strip.text = element_text(size=15, face = "bold"),
+    axis.ticks = element_blank(),
+    axis.title = element_text(size = 15),
+    axis.text.y = element_text(size = 15),
+    axis.text.x = element_text(size = 13),
+    legend.position = "none",
+    plot.title = element_text(size = 16)
+  )  + 
+  labs(x = "Weight (log scale)", y = " ") +
+  ggtitle("Weights Of Fishes Stocked In The Great Lakes")
+
+ggsave("Weights Of Fishes Stocked In The Great Lakes.png", height = 10, width = 20)
