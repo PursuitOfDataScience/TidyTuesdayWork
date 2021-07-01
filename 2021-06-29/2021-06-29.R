@@ -25,6 +25,7 @@ animal_rescues %>% group_by(property_category, month) %>%
   ) +
   ggtitle("Monthly Average Incidence Cost Faceted By Property Category")
 
+#ggsave("Monthly Average Incidence Cost Faceted By Property Category.png", width = 20, height = 10)
 
 # transforming month into character
 animal_rescues <- animal_rescues %>% 
@@ -48,3 +49,6 @@ animal_rescues %>% group_by(property_category, month) %>%
   ) +
   coord_flip() +
   ggtitle("Monthly Property Category-Wise Incidence Cost")
+
+
+#ggsave("Monthly Property Category-Wise Incidence Cost.png", width = 20, height = 10)
