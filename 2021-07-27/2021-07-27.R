@@ -22,6 +22,7 @@ olympics %>%
   ) +
   labs(y = "Medal Counts", title = "Medal Counts of Summer&Winter Olymptics for Men&Women")
 
+#ggsave("Medal Counts of Summer&Winter Olymptics for Men&Women.png", width = 20, height = 10)
 
 olympics <- olympics %>%
   mutate(sex = case_when(
@@ -50,5 +51,7 @@ olympics %>%
     legend.title = element_text(size = 15),
     legend.text = element_text(size = 12),
     plot.title = element_text(size = 18)
-  ) 
-  
+  ) +
+  labs(y = "Medal Count")
+ 
+#ggsave("Medal Counts for Men&Women among top countries.png", width = 20, height = 10)
