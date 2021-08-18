@@ -1,0 +1,86 @@
+library(tidyverse)
+computer <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-08-17/computer.csv')
+
+computer$type <- str_to_title(computer$type)
+# skimr::skim(computer)
+# 
+# computer %>% 
+#   count(char, sort = TRUE) %>%
+#   mutate(char = fct_lump(char, n = 6))
+
+
+# bar charts
+
+computer %>%
+  group_by(type) %>%
+  count(char, sort = TRUE) %>%
+  ungroup() %>%
+  mutate(char = fct_lump(char, n = 6, w = n)) %>% 
+  group_by(type, char) %>%
+  summarize(n = sum(n)) %>%
+  ggplot(aes(char, n, fill = type)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~type) +
+  theme_bw() +
+  theme(
+    legend.position = "none",
+    strip.text = element_text(size = 12, face = "bold"),
+    axis.title = element_text(size = 15),
+    axis.text = element_text(size = 11),
+    axis.ticks = element_blank()
+      ) +
+  coord_flip() +
+  labs(y = "Counts", x = "Character", title = "Characters and Command Types")
+#ggsave("Characters and Command Types.png", width = 20, height = 10)
+
+
+# heatmap
+computer %>%
+  group_by(type) %>%
+  count(char, sort = TRUE) %>%
+  ungroup() %>%
+  mutate(char = fct_lump(char, n = 5, w = n)) %>% 
+  group_by(type, char) %>%
+  summarize(n = sum(n)) %>%
+  ggplot(aes(char, type, fill = n)) +
+  geom_tile() +
+  scale_fill_gradient2(name = "counts", low = "white", high = "darkblue") +
+  theme_bw() +
+  theme(
+    legend.position = "bottom",
+    strip.text = element_text(size = 12, face = "bold"),
+    axis.title = element_text(size = 15),
+    axis.text = element_text(size = 11),
+    axis.ticks = element_blank()
+  ) +
+  labs(y = "Type", x = "Character", title = "Characters and Command Types heatmap")
+#ggsave("Characters and Command Types heatmap.png", width = 20, height = 10)
+# percent barplot
+
+left_join(
+  computer %>%
+  group_by(domain) %>%
+  summarize(domain_count = n()),
+  computer %>%
+  group_by(domain, sub_domain) %>%
+  summarize(subdomain_count = n()),
+    by = "domain"
+) %>% 
+  mutate(domain = fct_lump(domain, n = 5, w = domain_count),
+         sub_domain = fct_lump(sub_domain, n = 6, w = subdomain_count)) %>%
+  mutate(sub_percent = subdomain_count/domain_count)  %>%
+  ggplot(aes(sub_domain, sub_percent, fill = sub_domain)) +
+  geom_col() +
+  facet_wrap(~domain) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  coord_flip()+
+  theme_bw() +
+  theme(
+    legend.position = "bottom",
+    strip.text = element_text(size = 12, face = "bold"),
+    axis.title = element_text(size = 15),
+    axis.text = element_text(size = 11),
+    axis.ticks = element_blank()
+  ) +
+  labs(x = "Subdomain", y = "Subdomain Percent in Domain")
+#ggsave("subdomain.png", width = 20, height = 10)
