@@ -7,15 +7,6 @@ theme_set(theme_tufte())
 
 emmy <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-09-21/nominees.csv")
 
-emmy %>% count(year, sort = T)
-
-emmy %>% count(category, sort = T)
-
-
-emmy %>%
-  group_by(year, title) %>%
-  summarize(count = n()) %>%
-  arrange(desc(count))
 
 top_6_distributor <-
   emmy %>%
@@ -62,7 +53,8 @@ p12 <- emmy %>%
   )
 
 p11 / p12
-  
+
+#ggsave("1.png", width = 20, height = 10)   
 
 # Plot 2
 
@@ -86,6 +78,8 @@ emmy %>%
     plot.title = element_text(size = 18)
   )
   
+#ggsave("2.png", width = 20, height = 10) 
+
 # Plot 3
 
 emmy %>%
@@ -103,10 +97,12 @@ emmy %>%
        title = "Top 10 Nominees & Winners") +
   theme(
     strip.text = element_text(size = 15, face = "bold"),
+    axis.text = element_text(size = 12),
     plot.title = element_text(size = 18),
     axis.ticks = element_blank()
   )
 
+#ggsave("3.png", width = 20, height = 10) 
 
 
 
