@@ -44,7 +44,7 @@ joined_df %>%
 joined_df  %>%
   count(name, program_category, sort = T) %>%
   group_by(program_category) %>%
-  slice_max(n, n = 15) %>%
+  slice_max(n, n = 15) %>% 
   ungroup() %>%
   mutate(name = reorder_within(name, n, program_category)) %>%
   ggplot(aes(n, name, fill = name)) +
