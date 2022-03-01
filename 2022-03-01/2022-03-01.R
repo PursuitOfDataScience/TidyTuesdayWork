@@ -25,8 +25,10 @@ stations %>%
   #geom_text(aes(label = state), check_overlap = T, hjust = 1, vjust = 1)
   coord_fixed(1.5) +
   ggthemes::theme_map() +
-  ggtitle("Where are the gas stations located in the U.S.?") +
+  ggtitle("Where are the fuel stations located in the U.S.?") +
   theme(plot.title = element_text(size = 18))
+
+#ggsave("plot1.png", width = 10, height = 8)
 
 
 ## Plot 2
@@ -48,6 +50,8 @@ stations %>%
   labs(x = "% of station type",
        y = "fuel type",
        title = "State-wise Fuel Station Type Percentage") 
+
+#ggsave("plot2.png", width = 15, height = 8)
 
 ## Plot 3 
 
@@ -75,6 +79,7 @@ by_public %>%
   theme(strip.text = element_text(size = 15),
         plot.title = element_text(size = 18))
 
+#ggsave("plot3.png", width = 12, height = 8)
 
 ## Plot 4
 
@@ -97,5 +102,6 @@ stations %>%
        y = "access detail code",
        title = "Weighted Log Odds of Access Detail Code within Facility Type") 
 
+#ggsave("plot4.png", width = 13, height = 8)
 
 
