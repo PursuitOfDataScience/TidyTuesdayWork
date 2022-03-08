@@ -1,0 +1,170 @@
+library(tidyverse)
+library(countrycode)
+library(ggDoubleHeat)
+library(patchwork)
+theme_set(theme_bw())
+
+# load and clean up the data
+
+erasmus <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-03-08/erasmus.csv') %>%
+  select(-education_level,
+         -field_of_education,
+         -participant_profile,
+         -group_leader) %>%
+  mutate(sending_country_code = fct_recode(sending_country_code, 
+                                           "GB" = "UK",
+                                           "GR" = "EL"),
+         receiving_country_code = fct_recode(receiving_country_code, 
+                                           "GB" = "UK",
+                                           "GR" = "EL")) %>%
+  mutate(sending_country = countrycode(sending_country_code, origin = "iso2c", destination = "country.name"),
+         receiving_country = countrycode(receiving_country_code, origin = "iso2c", destination = "country.name"),
+         year = as.numeric(str_remove(academic_year, "-.+$")))
+
+
+# Plot 1
+
+erasmus %>%
+  filter(participant_gender %in% c("Male", "Female"),
+         fct_lump(sending_country, n = 9) != "Other") %>%
+  group_by(year, participant_gender, sending_country) %>%
+  summarize(participant_total = sum(participants)) %>%
+  ungroup() %>%
+  mutate(sending_country = fct_reorder(sending_country, -participant_total, sum)) %>%
+  ggplot(aes(year, participant_total, color = participant_gender)) +
+  geom_line(size = 1) +
+  geom_point() +
+  facet_wrap(~sending_country) +
+  labs(x = "",
+       y = "# of participants",
+       color = NULL,
+       title = "Yearly # of Program Participants",
+       subtitle = "9 largest sending countries selected") +
+  theme(strip.text = element_text(size = 15),
+        plot.title = element_text(size = 18)) 
+
+
+#ggsave("plot1.png", width = 10, height = 8)
+
+# Plot 2
+
+
+erasmus %>%
+  filter(participant_age > 0,
+         participant_age < 60) %>% 
+  ggplot(aes(year, participant_age, group = year)) +
+  geom_boxplot(aes(fill = participant_gender), outlier.alpha = 0.5) +
+  facet_wrap(~participant_gender) +
+  theme(strip.text = element_text(size = 15),
+        plot.title = element_text(size = 18),
+        legend.position = "none") +
+  labs(x = "",
+       y = "age",
+       title = "Participant Age Distribution") 
+
+#ggsave("plot2.png", width = 10, height = 8)
+
+# Plot 3
+
+p31 <- erasmus %>%
+  mutate(abroad = if_else(sending_country == receiving_country,
+                          "Domestic",
+                          "Abroad")) %>%
+  filter(!is.na(abroad)) %>%
+  group_by(sending_country, abroad, year) %>%
+  summarize(n = n()) %>%
+  ungroup() %>%
+  arrange(desc(n)) %>%
+  group_by(abroad) %>%
+  slice_max(n, n = 20) %>%
+  pivot_wider(names_from = "abroad",
+              values_from = "n") %>%
+  replace_na(list(Abroad = 0,
+                  Domestic = 0)) %>%
+  
+  ggplot(aes(year, sending_country)) +
+  geom_heat_grid(outside = Abroad,
+                 inside = Domestic) +
+  theme(panel.grid = element_blank(),
+        legend.position = "bottom",
+        plot.title = elemnet_text(size = 18)) +
+  coord_fixed() +
+  labs(x = NULL,
+       y = "sending country",
+       title = "Where do participants come from and go to?") 
+
+
+
+p32 <- erasmus %>%
+  mutate(abroad = if_else(sending_country == receiving_country,
+                          "Domestic",
+                          "Abroad")) %>%
+  filter(!is.na(abroad)) %>%
+  group_by(receiving_country, abroad, year) %>%
+  summarize(n = n()) %>%
+  ungroup() %>%
+  arrange(desc(n)) %>%
+  group_by(abroad) %>%
+  slice_max(n, n = 20) %>%
+  pivot_wider(names_from = "abroad",
+              values_from = "n") %>%
+  replace_na(list(Abroad = 0,
+                  Domestic = 0)) %>%
+  
+  ggplot(aes(year, receiving_country)) +
+  geom_heat_grid(outside = Abroad,
+                 inside = Domestic) +
+  theme(panel.grid = element_blank(),
+        legend.position = "bottom") +
+  coord_fixed() +
+  labs(x = NULL,
+       y = "receiving country") 
+
+p31 + p32
+
+#ggsave("plot3.png", width = 12, height = 8)
+
+# Plot 4
+
+erasmus %>%
+  count(sending_city, receiving_city, sort = T) %>% View()
+
+by_city <- erasmus %>%
+  group_by(year, sending_city) %>%
+  mutate(yearly_city_sending = n()) %>% 
+  ungroup() %>%
+  group_by(year, receiving_city) %>%
+  mutate(yearly_city_receiving = n()) %>%
+  ungroup() %>%
+  distinct(year, sending_city, receiving_city, yearly_city_sending, yearly_city_receiving)
+
+p41 <- by_city %>%
+  distinct(year, sending_city, .keep_all = T) %>%
+  group_by(year) %>%
+  slice_max(yearly_city_sending, n = 1) %>%
+  ungroup() %>%
+  ggplot(aes(year, yearly_city_sending, fill = sending_city)) +
+  geom_col(show.legend = F) +
+  geom_text(aes(label = sending_city), vjust = 0) +
+  scale_x_continuous(breaks = 2014:2019) +
+  labs(x = NULL,
+       y = "# of sending participants",
+       title = "The Annual City Sending the Most Participants") 
+
+
+p42 <- by_city %>%
+  distinct(year, sending_city, .keep_all = T) %>%
+  group_by(year) %>%
+  slice_max(yearly_city_receiving, n = 1, with_ties = F) %>%
+  ungroup() %>%
+  ggplot(aes(year, yearly_city_receiving, fill = sending_city)) +
+  geom_col(show.legend = F) +
+  geom_text(aes(label = sending_city), vjust = 0) +
+  scale_x_continuous(breaks = 2014:2019) +
+  labs(x = NULL,
+       y = "# of receiving participants",
+       title = "The Annual City Receiving the Most Participants") 
+
+p41 / p42
+
+#ggsave("plot4.png", width = 10, height = 8)
