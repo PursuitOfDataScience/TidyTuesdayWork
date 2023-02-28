@@ -10,14 +10,15 @@ country_regions <- readr::read_csv('https://raw.githubusercontent.com/rfordatasc
 
 # join afrisenti and language_countries, country_regions together
 
-afrisenti |>
+joined <- afrisenti |>
   #select(-tweet) |>
   left_join(language_countries, by = "language_iso_code", multiple = "all") |>
   distinct() |>
   left_join(country_regions, by = "country", multiple = "all") |>
   left_join(language_scripts, by = "language_iso_code", multiple = "all") |>
-  left_join(languages, by = "language_iso_code", multiple = "all")
+  left_join(languages, by = "language_iso_code", multiple = "all") 
 
+joined 
 
 
 
